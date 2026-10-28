@@ -1,42 +1,54 @@
 name: CI
 on:
- pull_request:
- types: [opened, synchronize, reopened]
- branches: [develop]
- push:
- branches: [develop]
- workflow_dispatch: {}
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [develop]
+  push:
+    branches: [develop]
+  workflow_dispatch:
+
 permissions:
- contents: write
+  contents: write
+
 jobs:
- update-readme:
- runs-on: ubuntu-latest
- steps:
- - uses: actions/checkout@v4
- - name: Registrar la rama en el README
- run: |
- BRANCH=$(git log -1 --pretty=%B | grep 'Merge pull request' | sed -E 's#.*from [^/]+/##')
- BRANCH=${BRANCH:-${{ github.head_ref || github.ref_name }}}
- echo "- Añadida feature: $BRANCH" >> README.md
-- name: Commit y push del README
- run: |
- git config user.name "github-actions[bot]"
- git config user.email "github-actions[bot]@users.noreply.github.com"
- git add README.md
- git commit -m "docs: registrar rama" || echo "Sin cambios que commitear"
- git push || echo "Nada que subir"
- validate-dev:
- needs: update-readme
- runs-on: self-hosted
- steps:
- - uses: actions/checkout@v4
- - name: Validar entorno de desarrollo
- env:
- TOKEN: ${{ secrets.DEV_TOKEN }}
- run: |
- if ($env:TOKEN -eq $env:LOCAL_DEV_TOKEN) {
- Write-Host "CI: validación de desarrollo correcta "
- } else {
- Write-Host "CI: validación fallida "
- exit 1
- }
+  update-readme:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+
+      - name: Registrar la rama en el README
+        shell: bash
+        run: |
+          BRANCH="${{ github.head_ref || github.ref_name }}"
+          echo "- Añadida feature: $BRANCH" >> README.md
+
+      - name: Commit y push del README
+        if: github.event_name == 'push'
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add README.md
+          git diff --cached --quiet && exit 0
+          git commit -m "docs: registrar rama"
+          git push
+
+  validate-dev:
+    needs: update-readme
+    runs-on: [self-hosted, Windows]
+
+    steps:
+      - name: Validar entorno de desarrollo
+        shell: powershell
+        env:
+          TOKEN: ${{ secrets.DEV_TOKEN }}
+        run: |
+          if ($env:TOKEN -eq $env:LOCAL_DEV_TOKEN) {
+            Write-Host "CI: validacion de desarrollo correcta"
+          }
+          else {
+            Write-Host "CI: validacion fallida"
+            exit 1
+          }
