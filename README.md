@@ -1,4 +1,4 @@
 AppVersion-0
+###### NUEVA FUNCIONALIDAD      
 - Añadida feature: develop
-- Prueba de integración continua.
-- Añadida feature: develop
+- Nueva mejora añadida por el colaborador
