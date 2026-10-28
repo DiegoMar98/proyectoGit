@@ -2,4 +2,5 @@ AppVersion-0
 ###### NUEVA FUNCIONALIDAD      
 - Añadida feature: develop
 - Nueva mejora añadida por el colaborador
-- Añadida feature: develop- Añadida feature: develop
+- Añadida feature: develop
+- Comprobación del fallo del token
