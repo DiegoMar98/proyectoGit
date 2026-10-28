@@ -1,3 +1,4 @@
 AppVersion-0
 ###### NUEVA FUNCIONALIDAD      
-Se ha añadido una nueva funcionalidad.
+- Añadida feature: develop
+- Nueva mejora añadida por el colaborador
